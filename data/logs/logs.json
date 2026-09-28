@@ -1,0 +1,46 @@
+{
+  "INC-001": [
+    "2026-09-27 10:01:12 INFO payment-api request received",
+    "2026-09-27 10:01:13 WARN database connection acquisition taking longer than 2s",
+    "2026-09-27 10:01:15 ERROR database connection pool exhausted",
+    "2026-09-27 10:01:16 ERROR payment-api request failed with HTTP 500",
+    "2026-09-27 10:01:18 WARN database connection utilization: 100%",
+    "2026-09-27 10:01:21 ERROR payment-api response latency exceeded 4 seconds"
+  ],
+  "INC-002": [
+    "2026-09-27 11:10:03 INFO user-api request received",
+    "2026-09-27 11:11:17 WARN memory utilization above 85%",
+    "2026-09-27 11:12:41 WARN memory utilization above 92%",
+    "2026-09-27 11:13:09 ERROR user-api out of memory condition detected",
+    "2026-09-27 11:13:10 ERROR user-api process restarted"
+  ],
+  "INC-003": [
+    "2026-09-27 12:05:11 INFO order-service processing orders",
+    "2026-09-27 12:06:24 WARN CPU utilization above 90%",
+    "2026-09-27 12:07:02 WARN CPU utilization reached 98%",
+    "2026-09-27 12:07:19 ERROR order processing queue increasing",
+    "2026-09-27 12:08:01 WARN validation worker consuming excessive CPU"
+  ],
+  "INC-004": [
+    "2026-09-27 13:20:05 INFO payment-api calling payment gateway",
+    "2026-09-27 13:20:08 WARN payment gateway response exceeded 3 seconds",
+    "2026-09-27 13:20:12 WARN payment gateway response exceeded 5 seconds",
+    "2026-09-27 13:20:15 ERROR payment gateway request timeout",
+    "2026-09-27 13:20:16 ERROR payment-api returned HTTP 504"
+  ],
+  "INC-005": [
+    "2026-09-27 14:02:11 INFO notification worker processing messages",
+    "2026-09-27 14:03:41 WARN notification queue backlog above 5000",
+    "2026-09-27 14:05:02 WARN notification queue backlog above 7000",
+    "2026-09-27 14:07:18 ERROR notification queue backlog reached 8500",
+    "2026-09-27 14:08:02 WARN worker throughput below expected level"
+  ],
+  "INC-006": [
+    "2026-09-27 15:10:11 INFO payment-api request received",
+    "2026-09-27 15:10:14 WARN database connection acquisition taking longer than 2s",
+    "2026-09-27 15:10:17 ERROR payment-api requests waiting for database connection",
+    "2026-09-27 15:10:19 ERROR payment-api returned HTTP 500",
+    "2026-09-27 15:10:22 WARN database connection utilization: 99%",
+    "2026-09-27 15:10:25 ERROR payment-api response latency exceeded 5 seconds"
+  ]
+}

@@ -1,0 +1,111 @@
+[
+  {
+    "incident_id": "INC-001",
+    "service": "payment-api",
+    "severity": "critical",
+    "symptoms": [
+      "API latency increased to 4.5 seconds",
+      "HTTP 500 error rate reached 35%",
+      "Database connection utilization reached 100%"
+    ],
+    "metrics": {
+      "latency_seconds": 4.5,
+      "error_rate_percent": 35,
+      "db_connection_utilization_percent": 100
+    },
+    "root_cause": "Database connection pool exhaustion",
+    "resolution": "Increased database connection pool size and restarted the Payment API",
+    "outcome": "Latency returned to normal and error rate dropped below 1%"
+  },
+  {
+    "incident_id": "INC-002",
+    "service": "user-api",
+    "severity": "high",
+    "symptoms": [
+      "Memory utilization increased continuously",
+      "API response time increased",
+      "Service restarted unexpectedly"
+    ],
+    "metrics": {
+      "memory_utilization_percent": 96,
+      "latency_seconds": 3.8,
+      "restart_count": 4
+    },
+    "root_cause": "Memory leak in user session processing",
+    "resolution": "Restarted the service and deployed a memory leak fix",
+    "outcome": "Memory utilization stabilized below 60%"
+  },
+  {
+    "incident_id": "INC-003",
+    "service": "order-service",
+    "severity": "high",
+    "symptoms": [
+      "CPU utilization reached 98%",
+      "Order processing became slow",
+      "Request queue increased"
+    ],
+    "metrics": {
+      "cpu_utilization_percent": 98,
+      "latency_seconds": 5.1,
+      "queue_length": 420
+    },
+    "root_cause": "CPU-intensive order validation process",
+    "resolution": "Disabled the expensive validation path and deployed an optimized validation implementation",
+    "outcome": "CPU utilization dropped below 65%"
+  },
+  {
+    "incident_id": "INC-004",
+    "service": "payment-api",
+    "severity": "high",
+    "symptoms": [
+      "Payment requests timed out",
+      "Dependency response time increased",
+      "HTTP 504 errors increased"
+    ],
+    "metrics": {
+      "dependency_latency_seconds": 8.7,
+      "timeout_rate_percent": 27,
+      "error_rate_percent": 29
+    },
+    "root_cause": "Payment gateway dependency timeout",
+    "resolution": "Enabled retry with exponential backoff and increased dependency timeout threshold",
+    "outcome": "Payment failures dropped significantly"
+  },
+  {
+    "incident_id": "INC-005",
+    "service": "notification-service",
+    "severity": "medium",
+    "symptoms": [
+      "Message queue backlog increased",
+      "Notification delivery became delayed",
+      "Worker throughput decreased"
+    ],
+    "metrics": {
+      "queue_length": 8500,
+      "worker_throughput_per_second": 12,
+      "delivery_delay_minutes": 18
+    },
+    "root_cause": "Insufficient notification workers",
+    "resolution": "Scaled notification workers from 3 to 8",
+    "outcome": "Queue backlog returned to normal"
+  },
+  {
+    "incident_id": "INC-006",
+    "service": "payment-api",
+    "severity": "critical",
+    "symptoms": [
+      "Payment API latency increased to 5.2 seconds",
+      "HTTP 500 error rate increased to 31%",
+      "Database connection utilization reached 99%",
+      "Requests are taking longer to acquire database connections"
+    ],
+    "metrics": {
+      "latency_seconds": 5.2,
+      "error_rate_percent": 31,
+      "db_connection_utilization_percent": 99
+    },
+    "root_cause": "Database connection pool exhaustion",
+    "resolution": "Increased database connection pool capacity and restarted the Payment API",
+    "outcome": "API latency returned to normal and HTTP 500 errors dropped significantly"
+  }
+]

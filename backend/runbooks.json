@@ -1,0 +1,96 @@
+[
+  {
+    "incident_type": "Database connection pool exhaustion",
+    "title": "Database Connection Pool Exhaustion Runbook",
+    "procedure": [
+      {
+        "step": 1,
+        "action": "Inspect current database connection pool configuration"
+      },
+      {
+        "step": 2,
+        "action": "Check active connections and identify long-running queries"
+      },
+      {
+        "step": 3,
+        "action": "Simulate increasing the database connection pool capacity"
+      },
+      {
+        "step": 4,
+        "action": "Simulate restarting the affected API service"
+      },
+      {
+        "step": 5,
+        "action": "Monitor database connection utilization and API error rate"
+      }
+    ],
+    "verification": [
+      "Database connection utilization should decrease",
+      "API latency should return toward normal levels",
+      "HTTP 500 error rate should decrease",
+      "Connection acquisition delays should disappear"
+    ]
+  },
+  {
+    "incident_type": "Memory leak",
+    "title": "Service Memory Leak Runbook",
+    "procedure": [
+      {
+        "step": 1,
+        "action": "Inspect memory utilization and restart history"
+      },
+      {
+        "step": 2,
+        "action": "Identify processes with continuously increasing memory usage"
+      },
+      {
+        "step": 3,
+        "action": "Simulate restarting the affected service"
+      },
+      {
+        "step": 4,
+        "action": "Deploy the simulated memory leak fix"
+      },
+      {
+        "step": 5,
+        "action": "Monitor memory utilization after recovery"
+      }
+    ],
+    "verification": [
+      "Memory utilization should stabilize",
+      "Unexpected service restarts should stop",
+      "API response time should improve"
+    ]
+  },
+  {
+    "incident_type": "CPU saturation",
+    "title": "CPU Saturation Runbook",
+    "procedure": [
+      {
+        "step": 1,
+        "action": "Identify the process consuming excessive CPU"
+      },
+      {
+        "step": 2,
+        "action": "Inspect request queue growth"
+      },
+      {
+        "step": 3,
+        "action": "Disable the simulated expensive processing path"
+      },
+      {
+        "step": 4,
+        "action": "Deploy the simulated optimized implementation"
+      },
+      {
+        "step": 5,
+        "action": "Monitor CPU utilization and request queue length"
+      }
+    ],
+    "verification": [
+      "CPU utilization should decrease",
+      "Request queue should return toward normal",
+      "Order processing latency should improve"
+    ]
+  }
+]

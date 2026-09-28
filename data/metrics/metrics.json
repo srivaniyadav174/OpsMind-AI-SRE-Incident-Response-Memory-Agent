@@ -48,5 +48,12 @@
     "cpu_percent": 76,
     "memory_percent": 71,
     "db_connection_utilization_percent": 98
+  },
+  "INC-008": {
+    "latency_seconds": 6.1,
+    "error_rate_percent": 26,
+    "cpu_percent": 79,
+    "memory_percent": 73,
+    "db_connection_utilization_percent": 97
   }
 }

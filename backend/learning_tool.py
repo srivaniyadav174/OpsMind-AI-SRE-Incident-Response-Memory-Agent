@@ -5,7 +5,7 @@ from hindsight_client import Hindsight
 
 
 # ============================================================
-# CONFIGURATION
+# ENVIRONMENT
 # ============================================================
 
 load_dotenv()
@@ -29,25 +29,53 @@ if not HINDSIGHT_API_KEY:
 # HINDSIGHT CLIENT
 # ============================================================
 
-client = Hindsight(
-    base_url="https://api.hindsight.vectorize.io",
-    api_key=HINDSIGHT_API_KEY,
-)
+client = None
+
+
+def get_client():
+    """
+    Create a Hindsight client when needed.
+
+    This prevents OpsMind from trying to reuse
+    a client whose HTTP session has already been closed.
+    """
+
+    global client
+
+    if client is None:
+        client = Hindsight(
+            base_url="https://api.hindsight.vectorize.io",
+            api_key=HINDSIGHT_API_KEY,
+        )
+
+    return client
 
 
 def close_learning_client():
     """
-    Close the Hindsight client used by the learning tool.
+    Close the Hindsight client used by the
+    learning tool.
+
+    The client is set back to None so that
+    the next operation can create a fresh client.
     """
 
-    try:
-        client.close()
-    except Exception:
-        pass
+    global client
+
+    if client is not None:
+
+        try:
+            client.close()
+
+        except Exception:
+            pass
+
+        finally:
+            client = None
 
 
 # ============================================================
-# STORE INCIDENT OUTCOME
+# RETAIN INCIDENT OUTCOME
 # ============================================================
 
 def retain_incident_outcome(
@@ -56,10 +84,11 @@ def retain_incident_outcome(
     diagnosis,
     actions_taken,
     outcome,
-    successful=True
+    successful=True,
 ):
     """
-    Store the result of an incident investigation in Hindsight.
+    Store the result of an incident investigation
+    and simulated remediation in Hindsight.
     """
 
     if isinstance(actions_taken, list):
@@ -100,7 +129,9 @@ this previous experience when determining investigation and
 remediation steps.
 """
 
-    client.retain(
+    hindsight_client = get_client()
+
+    hindsight_client.retain(
         bank_id=BANK_ID,
         content=learning_record,
         context="OpsMind SRE incident learning",
@@ -122,7 +153,7 @@ remediation steps.
 
 
 # ============================================================
-# COMMAND-LINE TEST
+# DIRECT TEST
 # ============================================================
 
 if __name__ == "__main__":
@@ -153,8 +184,8 @@ if __name__ == "__main__":
             ],
 
             outcome=(
-                "API latency returned toward normal levels "
-                "and HTTP 500 errors decreased."
+                "API latency returned toward normal "
+                "levels and HTTP 500 errors decreased."
             ),
 
             successful=True,

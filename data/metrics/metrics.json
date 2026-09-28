@@ -41,5 +41,12 @@
     "cpu_percent": 74,
     "memory_percent": 70,
     "db_connection_utilization_percent": 99
+  },
+  "INC-007": {
+    "latency_seconds": 5.8,
+    "error_rate_percent": 28,
+    "cpu_percent": 76,
+    "memory_percent": 71,
+    "db_connection_utilization_percent": 98
   }
 }

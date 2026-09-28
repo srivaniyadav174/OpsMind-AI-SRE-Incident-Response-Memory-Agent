@@ -1,41 +1,35 @@
 import json
 
-from agent.sre_agent import diagnose_incident
-from incident_tool import get_incident
+from backend.agent.sre_agent import diagnose_incident
+from backend.incident_tool import get_incident
 
-from learning_tool import (
+from backend.learning_tool import (
     retain_incident_outcome,
     close_learning_client,
 )
 
-from memory_tool import close_memory_client
+from backend.memory_tool import close_memory_client
 
 
 # ============================================================
-# OPSMIND INCIDENT WORKFLOW
+# ANALYZE INCIDENT
 # ============================================================
 
-def process_incident(incident_id):
+def analyze_incident(incident_id):
     """
-    Run the complete OpsMind incident workflow:
+    Investigate an incident using current evidence,
+    AI reasoning, and Hindsight memory.
 
-    1. Investigate incident
-    2. Generate AI diagnosis
-    3. Retrieve runbook
-    4. Simulate remediation
-    5. Store outcome in Hindsight
+    IMPORTANT:
+    This function does NOT resolve the incident.
+    It only generates the diagnosis and runbook.
     """
-
-    # --------------------------------------------------------
-    # 1. Get incident
-    # --------------------------------------------------------
 
     incident = get_incident(
         incident_id
     )
 
     if incident is None:
-
         raise ValueError(
             f"Incident {incident_id} not found."
         )
@@ -43,11 +37,9 @@ def process_incident(incident_id):
     print(
         "\n========================================"
     )
-
     print(
-        "        OPSMIND INCIDENT WORKFLOW"
+        "        OPSMIND INCIDENT ANALYSIS"
     )
-
     print(
         "========================================\n"
     )
@@ -64,12 +56,8 @@ def process_incident(incident_id):
         f"Severity : {incident['severity']}"
     )
 
-    # --------------------------------------------------------
-    # 2. AI diagnosis
-    # --------------------------------------------------------
-
     print(
-        "\n[1/4] Investigating incident..."
+        "\n[1/2] Investigating incident..."
     )
 
     diagnosis = diagnose_incident(
@@ -81,57 +69,131 @@ def process_incident(incident_id):
     )
 
     print(
-        f"\nLikely Root Cause:\n"
-        f"{diagnosis.get('likely_root_cause')}"
+        f"\nLikely Root Cause:"
     )
 
     print(
-        f"\nConfidence:\n"
-        f"{diagnosis.get('confidence')}"
+        diagnosis.get(
+            "likely_root_cause"
+        )
     )
-
-    # --------------------------------------------------------
-    # 3. Display recommended actions
-    # --------------------------------------------------------
 
     print(
-        "\n[2/4] Recommended Actions"
+        f"\nConfidence:"
     )
 
-    actions = diagnosis.get(
-        "recommended_actions",
-        []
+    print(
+        diagnosis.get(
+            "confidence"
+        )
     )
 
-    for index, action in enumerate(
-        actions,
-        start=1
-    ):
+    print(
+        "\n[2/2] Analysis complete."
+    )
 
-        print(
-            f"{index}. {action}"
+    print(
+        "\n⚠️ No remediation has been executed."
+    )
+
+    print(
+        "Human approval is required before resolution."
+    )
+
+    return {
+        "incident_id": incident["incident_id"],
+        "service": incident["service"],
+        "severity": incident["severity"],
+        "diagnosis": diagnosis,
+        "awaiting_approval": True,
+    }
+
+
+# ============================================================
+# RESOLVE INCIDENT
+# ============================================================
+
+def resolve_incident(
+    incident_id,
+    diagnosis,
+):
+    """
+    Simulate the runbook remediation and store
+    the resulting incident learning in Hindsight.
+
+    No real production systems are changed.
+    """
+
+    incident = get_incident(
+        incident_id
+    )
+
+    if incident is None:
+        raise ValueError(
+            f"Incident {incident_id} not found."
         )
 
-    # --------------------------------------------------------
-    # 4. Display runbook
-    # --------------------------------------------------------
+    if not diagnosis:
+        raise ValueError(
+            "Diagnosis is required before resolution."
+        )
 
     print(
-        "\n[3/4] Runbook"
+        "\n========================================"
     )
+
+    print(
+        "        OPSMIND INCIDENT RESOLUTION"
+    )
+
+    print(
+        "========================================\n"
+    )
+
+    print(
+        f"Incident : {incident['incident_id']}"
+    )
+
+    print(
+        f"Service  : {incident['service']}"
+    )
+
+    print(
+        f"Diagnosis:"
+    )
+
+    print(
+        diagnosis.get(
+            "likely_root_cause",
+            "Unknown"
+        )
+    )
+
+    # ========================================================
+    # RUNBOOK
+    # ========================================================
 
     runbook = diagnosis.get(
         "runbook",
         {}
     )
 
-    print(
-        f"Title: {runbook.get('title')}"
-    )
-
     procedure = runbook.get(
         "procedure",
         []
+    )
+
+    if not procedure:
+        raise ValueError(
+            "No runbook procedure available."
+        )
+
+    print(
+        "\n[1/3] Runbook:"
+    )
+
+    print(
+        f"Title: {runbook.get('title')}"
     )
 
     for step in procedure:
@@ -141,18 +203,13 @@ def process_incident(incident_id):
             f"{step['action']}"
         )
 
-    # --------------------------------------------------------
-    # 5. Simulate resolution
-    # --------------------------------------------------------
+    # ========================================================
+    # SIMULATED ACTIONS
+    # ========================================================
 
     print(
-        "\n[4/4] Simulating Resolution..."
+        "\n[2/3] Simulating Resolution..."
     )
-
-    simulated_actions = [
-        step["action"]
-        for step in procedure
-    ]
 
     print(
         "\n⚠️ No real production systems are changed."
@@ -162,15 +219,23 @@ def process_incident(incident_id):
         "All remediation actions are simulated."
     )
 
-    for action in simulated_actions:
+    simulated_actions = []
+
+    for step in procedure:
+
+        action = step["action"]
+
+        simulated_actions.append(
+            action
+        )
 
         print(
             f"   ✓ Simulated: {action}"
         )
 
-    # --------------------------------------------------------
-    # 6. Simulated outcome
-    # --------------------------------------------------------
+    # ========================================================
+    # SIMULATED OUTCOME
+    # ========================================================
 
     outcome = (
         "Simulated remediation completed successfully. "
@@ -186,50 +251,40 @@ def process_incident(incident_id):
         outcome
     )
 
-    # --------------------------------------------------------
-    # 7. Store learning in Hindsight
-    # --------------------------------------------------------
+    # ========================================================
+    # HINDSIGHT LEARNING
+    # ========================================================
 
     print(
-        "\nStoring incident learning in Hindsight..."
+        "\n[3/3] Storing incident learning in Hindsight..."
     )
 
-    retain_incident_outcome(
-        incident_id=incident["incident_id"],
+    try:
 
-        service=incident["service"],
+        retain_incident_outcome(
+            incident_id=incident["incident_id"],
+            service=incident["service"],
+            diagnosis=diagnosis.get(
+                "likely_root_cause",
+                "Unknown"
+            ),
+            actions_taken=simulated_actions,
+            outcome=outcome,
+            successful=True,
+        )
 
-        diagnosis=diagnosis.get(
-            "likely_root_cause",
-            "Unknown"
-        ),
+        print(
+            "✅ Incident learning stored."
+        )
 
-        actions_taken=simulated_actions,
+    finally:
 
-        outcome=outcome,
+        close_memory_client()
+        close_learning_client()
 
-        successful=True,
-    )
-
-    print(
-        "✅ Incident learning stored."
-    )
-
-    # --------------------------------------------------------
-    # 8. Close Hindsight clients
-    # --------------------------------------------------------
-
-    close_memory_client()
-
-    close_learning_client()
-
-    print(
-        "✅ Hindsight clients closed cleanly."
-    )
-
-    # --------------------------------------------------------
-    # Final status
-    # --------------------------------------------------------
+        print(
+            "✅ Hindsight clients closed cleanly."
+        )
 
     print(
         "\n========================================"
@@ -245,19 +300,14 @@ def process_incident(incident_id):
 
     return {
         "incident_id": incident["incident_id"],
-
-        "diagnosis": diagnosis,
-
         "actions": simulated_actions,
-
         "outcome": outcome,
-
         "learned": True,
     }
 
 
 # ============================================================
-# COMMAND-LINE TEST
+# DIRECT CLI TEST
 # ============================================================
 
 if __name__ == "__main__":
@@ -268,20 +318,63 @@ if __name__ == "__main__":
 
     try:
 
-        result = process_incident(
+        # ----------------------------------------------------
+        # ANALYZE
+        # ----------------------------------------------------
+
+        analysis = analyze_incident(
             incident_id
         )
 
         print(
-            "\n========== FINAL RESULT ==========\n"
+            "\n========== ANALYSIS RESULT ==========\n"
         )
 
         print(
             json.dumps(
-                result,
+                analysis,
                 indent=2
             )
         )
+
+        # ----------------------------------------------------
+        # HUMAN APPROVAL
+        # ----------------------------------------------------
+
+        approval = input(
+            "\nApprove simulated resolution? (yes/no): "
+        ).strip().lower()
+
+        if approval not in (
+            "yes",
+            "y",
+        ):
+
+            print(
+                "\nResolution cancelled."
+            )
+
+        else:
+
+            # ------------------------------------------------
+            # RESOLVE
+            # ------------------------------------------------
+
+            resolution = resolve_incident(
+                incident_id,
+                analysis["diagnosis"],
+            )
+
+            print(
+                "\n========== RESOLUTION RESULT ==========\n"
+            )
+
+            print(
+                json.dumps(
+                    resolution,
+                    indent=2
+                )
+            )
 
     except Exception as error:
 

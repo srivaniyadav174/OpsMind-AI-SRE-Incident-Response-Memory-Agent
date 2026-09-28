@@ -107,5 +107,24 @@
     "root_cause": "Database connection pool exhaustion",
     "resolution": "Increased database connection pool capacity and restarted the Payment API",
     "outcome": "API latency returned to normal and HTTP 500 errors dropped significantly"
+  },
+  {
+    "incident_id": "INC-007",
+    "service": "payment-api",
+    "severity": "critical",
+    "symptoms": [
+      "Payment API latency increased to 5.8 seconds",
+      "HTTP 500 error rate increased to 28%",
+      "Database connection utilization reached 98%",
+      "Requests are waiting longer to acquire database connections"
+    ],
+    "metrics": {
+      "latency_seconds": 5.8,
+      "error_rate_percent": 28,
+      "db_connection_utilization_percent": 98
+    },
+    "root_cause": "Database connection pool exhaustion",
+    "resolution": "Increased database connection pool capacity and restarted the Payment API",
+    "outcome": "API latency returned toward normal levels and HTTP 500 errors decreased"
   }
 ]

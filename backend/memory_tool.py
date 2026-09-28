@@ -5,62 +5,47 @@ from dotenv import load_dotenv
 from hindsight_client import Hindsight
 
 
-# ============================================================
-# CONFIGURATION
-# ============================================================
-
 load_dotenv()
 
 HINDSIGHT_API_KEY = os.getenv("HINDSIGHT_API_KEY")
-
-BANK_ID = os.getenv(
+HINDSIGHT_BANK_ID = os.getenv(
     "HINDSIGHT_BANK_ID",
-    "opsmind-incidents"
+    "opsmind-incidents",
 )
 
-if not HINDSIGHT_API_KEY:
-    raise ValueError(
-        "HINDSIGHT_API_KEY is missing from .env"
-    )
+client = None
 
 
-# ============================================================
-# HINDSIGHT CLIENT
-# ============================================================
+def get_client():
+    global client
 
-client = Hindsight(
-    base_url="https://api.hindsight.vectorize.io",
-    api_key=HINDSIGHT_API_KEY,
-)
+    if client is None:
+        client = Hindsight(
+            base_url="https://api.hindsight.vectorize.io",
+            api_key=HINDSIGHT_API_KEY,
+        )
+
+    return client
 
 
 def close_memory_client():
-    """
-    Close the Hindsight client used by the memory tool.
-    """
+    global client
 
-    try:
-        client.close()
-    except Exception:
-        pass
+    if client is not None:
+        try:
+            client.close()
+        except Exception:
+            pass
+        finally:
+            client = None
 
 
-# ============================================================
-# EXTRACT INCIDENT ID
-# ============================================================
-
-def extract_incident_id(memory_text):
+def extract_incident_id(text: str):
     """
     Extract an incident ID such as INC-001 from memory text.
     """
 
-    if not memory_text:
-        return None
-
-    match = re.search(
-        r"\bINC-\d+\b",
-        memory_text.upper()
-    )
+    match = re.search(r"\bINC-\d+\b", text)
 
     if match:
         return match.group(0)
@@ -68,214 +53,264 @@ def extract_incident_id(memory_text):
     return None
 
 
-# ============================================================
-# CLEAN MEMORY TEXT
-# ============================================================
-
-def clean_memory_text(text):
+def clean_memory_text(text: str):
     """
-    Remove Hindsight-generated date suffixes and
-    normalize whitespace.
+    Clean memory text for readable output.
     """
 
     if not text:
         return ""
 
-    text = re.sub(
-        r"\s*\|\s*When:\s*\d{4}-\d{2}-\d{2}",
-        "",
-        text,
-        flags=re.IGNORECASE
-    )
+    text = text.replace("\n", " ")
+    text = re.sub(r"\s+", " ", text)
 
-    return " ".join(text.split())
+    return text.strip()
 
 
-# ============================================================
-# MERGE MEMORIES FOR ONE INCIDENT
-# ============================================================
+def extract_memory_text(memory):
+    """
+    Extract the actual text from a Hindsight memory object.
+    """
+
+    if isinstance(memory, str):
+        return memory
+
+    if isinstance(memory, dict):
+        return (
+            memory.get("text")
+            or memory.get("content")
+            or memory.get("memory")
+            or ""
+        )
+
+    text = getattr(memory, "text", None)
+
+    if text:
+        return text
+
+    return ""
+
+
+def normalize_for_comparison(text: str):
+    """
+    Normalize text for duplicate detection.
+    """
+
+    return re.sub(
+        r"[^a-z0-9]+",
+        " ",
+        text.lower(),
+    ).strip()
+
+
+def deduplicate_texts(texts):
+    """
+    Remove exact duplicate memory statements.
+    """
+
+    unique = []
+    seen = set()
+
+    for text in texts:
+
+        text = clean_memory_text(text)
+
+        if not text:
+            continue
+
+        normalized = normalize_for_comparison(text)
+
+        if normalized in seen:
+            continue
+
+        seen.add(normalized)
+        unique.append(text)
+
+    return unique
+
 
 def merge_incident_memories(memories):
     """
-    Combine multiple Hindsight memories belonging to
-    the same incident into one historical record.
+    Group Hindsight memories by incident ID.
     """
 
     grouped = {}
 
     for memory in memories:
 
-        incident_id = extract_incident_id(memory)
-
-        if not incident_id:
-            incident_id = "UNKNOWN"
-
-        if incident_id not in grouped:
-            grouped[incident_id] = []
-
-        cleaned = clean_memory_text(memory)
-
-        if cleaned and cleaned not in grouped[incident_id]:
-            grouped[incident_id].append(cleaned)
-
-    merged = []
-
-    for incident_id, texts in grouped.items():
-
-        combined_text = " ".join(texts)
-
-        if incident_id != "UNKNOWN":
-
-            combined_text = (
-                f"Historical Incident: {incident_id}\n"
-                f"{combined_text}"
-            )
-
-        merged.append(combined_text)
-
-    return merged
-
-
-# ============================================================
-# RECALL SIMILAR INCIDENTS
-# ============================================================
-
-def recall_similar_incidents(
-    query,
-    current_incident_id=None,
-    max_memories=5
-):
-    """
-    Search Hindsight for relevant historical incidents.
-
-    Features:
-    - Excludes current incident
-    - Groups memories by incident ID
-    - Removes duplicate memory text
-    - Returns clean historical context
-    """
-
-    result = client.recall(
-        bank_id=BANK_ID,
-        query=query,
-    )
-
-    raw_memories = []
-
-    current_id = (
-        current_incident_id.upper()
-        if current_incident_id
-        else None
-    )
-
-    for memory in result.results:
-
-        text = getattr(
-            memory,
-            "text",
-            ""
-        )
+        text = extract_memory_text(memory)
+        text = clean_memory_text(text)
 
         if not text:
             continue
 
         incident_id = extract_incident_id(text)
 
-        # ----------------------------------------------------
-        # Exclude current incident
-        # ----------------------------------------------------
+        if incident_id is None:
+            incident_id = "UNKNOWN"
 
-        if (
-            current_id
-            and incident_id == current_id
-        ):
+        grouped.setdefault(
+            incident_id,
+            [],
+        )
+
+        grouped[incident_id].append(text)
+
+    merged = []
+
+    for incident_id, texts in grouped.items():
+
+        unique_texts = deduplicate_texts(texts)
+
+        if not unique_texts:
             continue
 
-        raw_memories.append(text)
+        selected = unique_texts[:4]
 
-    # --------------------------------------------------------
-    # Group related memories
-    # --------------------------------------------------------
+        merged.append(
+            {
+                "incident_id": incident_id,
+                "memory": " ".join(selected),
+            }
+        )
 
-    merged_memories = merge_incident_memories(
-        raw_memories
+    return merged
+
+
+def recall_similar_incidents(
+    current_incident_id: str,
+    query: str,
+    max_memories: int = 5,
+):
+    """
+    Recall similar historical incidents.
+
+    IMPORTANT:
+    This function returns clean TEXT STRINGS because
+    sre_agent.py expects a list of strings.
+    """
+
+    hindsight_client = get_client()
+
+    memories = hindsight_client.recall(
+        bank_id=HINDSIGHT_BANK_ID,
+        query=query,
     )
 
-    return merged_memories[:max_memories]
+    merged = merge_incident_memories(memories)
+
+    results = []
+
+    for item in merged:
+
+        if item["incident_id"] == current_incident_id:
+            continue
+
+        # Convert the structured memory back into a readable
+        # string for the existing SRE agent.
+        memory_text = (
+            f"Historical Incident: "
+            f"{item['incident_id']}\n"
+            f"{item['memory']}"
+        )
+
+        results.append(memory_text)
+
+        if len(results) >= max_memories:
+            break
+
+    return results
 
 
-# ============================================================
-# COMMAND-LINE TEST
-# ============================================================
+def format_historical_context(memories):
+    """
+    Format historical memory strings for the SRE agent.
+    """
+
+    if not memories:
+        return "No similar historical incidents found."
+
+    sections = []
+
+    for memory in memories:
+
+        if isinstance(memory, str):
+            sections.append(memory)
+
+        elif isinstance(memory, dict):
+
+            incident_id = memory.get(
+                "incident_id",
+                "UNKNOWN",
+            )
+
+            memory_text = memory.get(
+                "memory",
+                "",
+            )
+
+            sections.append(
+                f"Historical Incident: "
+                f"{incident_id}\n"
+                f"{memory_text}"
+            )
+
+    return "\n\n".join(sections)
+
 
 if __name__ == "__main__":
 
     print(
-        "========== OPSMIND MEMORY TOOL ==========\n"
+        "========== OPSMIND MEMORY TOOL =========="
     )
 
     current_incident_id = input(
-        "Enter current incident ID: "
+        "\nEnter current incident ID: "
     ).strip()
 
-    query = """
-    Payment API is experiencing high latency and HTTP 500
-    errors. Database connection utilization is very high.
-    Requests are waiting for database connections.
-
-    Find previous incidents with similar symptoms and
-    useful remediation experience.
-    """
-
     print(
-        "\nSearching Hindsight memory...\n"
+        "\nSearching Hindsight memory..."
     )
 
-    try:
+    memories = recall_similar_incidents(
+        current_incident_id=current_incident_id,
+        query=(
+            "Find previous incidents involving payment-api, "
+            "database connection pool exhaustion, high latency, "
+            "HTTP 500 errors, connection utilization, and "
+            "successful remediation."
+        ),
+    )
 
-        memories = recall_similar_incidents(
-            query=query,
-            current_incident_id=current_incident_id,
-            max_memories=5,
-        )
+    print(
+        "\n========== HISTORICAL INCIDENTS =========="
+    )
 
-        if not memories:
-
-            print(
-                "No relevant historical incidents found."
-            )
-
-        else:
-
-            print(
-                "========== HISTORICAL INCIDENTS ==========\n"
-            )
-
-            for index, memory in enumerate(
-                memories,
-                start=1
-            ):
-
-                print(
-                    f"[Historical Memory {index}]"
-                )
-
-                print(memory)
-
-                print(
-                    "\n----------------------------------------\n"
-                )
-
-    except Exception as error:
+    if not memories:
 
         print(
-            f"❌ Memory search failed: {error}"
+            "No historical incidents found."
         )
 
-    finally:
+    else:
 
-        close_memory_client()
+        for index, memory in enumerate(
+            memories,
+            start=1,
+        ):
 
-        print(
-            "✅ Hindsight client closed cleanly."
-        )
+            print(
+                f"\n[Historical Memory {index}]"
+            )
+
+            print(memory)
+
+            print(
+                "\n" + "-" * 40
+            )
+
+    close_memory_client()
+
+    print(
+        "\n✅ Hindsight client closed cleanly."
+    )

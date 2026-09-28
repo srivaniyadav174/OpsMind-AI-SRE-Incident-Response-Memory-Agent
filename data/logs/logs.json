@@ -42,5 +42,13 @@
     "2026-09-27 15:10:19 ERROR payment-api returned HTTP 500",
     "2026-09-27 15:10:22 WARN database connection utilization: 99%",
     "2026-09-27 15:10:25 ERROR payment-api response latency exceeded 5 seconds"
+  ],
+  "INC-007": [
+    "2026-09-28 09:10:11 INFO payment-api request received",
+    "2026-09-28 09:10:14 WARN database connection acquisition taking longer than 2s",
+    "2026-09-28 09:10:17 ERROR payment-api requests waiting for database connection",
+    "2026-09-28 09:10:19 ERROR payment-api returned HTTP 500",
+    "2026-09-28 09:10:22 WARN database connection utilization: 98%",
+    "2026-09-28 09:10:25 ERROR payment-api response latency exceeded 5 seconds"
   ]
 }

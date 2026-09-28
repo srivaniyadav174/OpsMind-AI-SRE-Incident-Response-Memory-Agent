@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>OpsMind — AI SRE Agent</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- =========================
+             TOP NAVIGATION
+        ========================== -->
+
+        <header class="topbar">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    ◈
+                </div>
+
+                <div>
+                    <h1>OpsMind</h1>
+                    <p>AI SRE Incident Response</p>
+                </div>
+
+            </div>
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <span>
+                    AI SRE Agent
+                </span>
+
+                <span class="status-badge">
+                    ONLINE
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             MAIN CONTENT
+        ========================== -->
+
+        <main class="main-content">
+
+            <!-- PAGE HEADER -->
+
+            <section class="page-header">
+
+                <div>
+
+                    <div class="eyebrow">
+                        INCIDENT OPERATIONS
+                    </div>
+
+                    <h2>
+                        Incident Command Center
+                    </h2>
+
+                    <p>
+                        Investigate incidents using current
+                        telemetry and organizational memory.
+                    </p>
+
+                </div>
+
+                <div class="incident-selector">
+
+                    <label for="incidentSelect">
+                        INCIDENT
+                    </label>
+
+                    <select id="incidentSelect">
+                        <option value="INC-007">
+                            INC-007 — payment-api
+                        </option>
+                    </select>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 INCIDENT SUMMARY
+            ========================== -->
+
+            <section class="incident-card">
+
+                <div class="incident-heading">
+
+                    <div>
+
+                        <div class="incident-id">
+                            INC-007
+                        </div>
+
+                        <h3 id="serviceName">
+                            payment-api
+                        </h3>
+
+                    </div>
+
+                    <div class="severity critical">
+                        CRITICAL
+                    </div>
+
+                </div>
+
+
+                <div class="incident-description">
+
+                    <div>
+
+                        <span class="label">
+                            STATUS
+                        </span>
+
+                        <span
+                            id="incidentStatus"
+                            class="status-text"
+                        >
+                            Awaiting investigation
+                        </span>
+
+                    </div>
+
+                    <div>
+
+                        <span class="label">
+                            DETECTION
+                        </span>
+
+                        <span class="status-text">
+                            Automated monitoring
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 METRICS
+            ========================== -->
+
+            <section class="section">
+
+                <div class="section-title">
+
+                    <div>
+                        <span class="section-number">
+                            01
+                        </span>
+
+                        Current Telemetry
+                    </div>
+
+                    <span class="section-caption">
+                        LIVE INCIDENT EVIDENCE
+                    </span>
+
+                </div>
+
+
+                <div class="metrics-grid">
+
+                    <div class="metric-card">
+
+                        <div class="metric-label">
+                            API LATENCY
+                        </div>
+
+                        <div
+                            id="latencyMetric"
+                            class="metric-value danger"
+                        >
+                            5.8s
+                        </div>
+
+                        <div class="metric-note">
+                            Normal target &lt; 1s
+                        </div>
+
+                    </div>
+
+
+                    <div class="metric-card">
+
+                        <div class="metric-label">
+                            HTTP 500 ERROR RATE
+                        </div>
+
+                        <div
+                            id="errorMetric"
+                            class="metric-value danger"
+                        >
+                            28%
+                        </div>
+
+                        <div class="metric-note">
+                            Elevated
+                        </div>
+
+                    </div>
+
+
+                    <div class="metric-card">
+
+                        <div class="metric-label">
+                            DB CONNECTION UTILIZATION
+                        </div>
+
+                        <div
+                            id="dbMetric"
+                            class="metric-value danger"
+                        >
+                            98%
+                        </div>
+
+                        <div class="metric-note">
+                            Critical saturation
+                        </div>
+
+                    </div>
+
+
+                    <div class="metric-card">
+
+                        <div class="metric-label">
+                            SEVERITY
+                        </div>
+
+                        <div class="metric-value">
+                            CRITICAL
+                        </div>
+
+                        <div class="metric-note">
+                            Immediate investigation
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 SYMPTOMS
+            ========================== -->
+
+            <section class="section">
+
+                <div class="section-title">
+
+                    <div>
+                        <span class="section-number">
+                            02
+                        </span>
+
+                        Incident Symptoms
+                    </div>
+
+                    <span class="section-caption">
+                        OBSERVED SIGNALS
+                    </span>
+
+                </div>
+
+
+                <div
+                    id="symptomsContainer"
+                    class="symptoms-card"
+                >
+
+                    <div class="loading">
+                        Loading incident evidence...
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 ANALYZE BUTTON
+            ========================== -->
+
+            <section class="analysis-action">
+
+                <button
+                    id="analyzeButton"
+                    class="primary-button"
+                    onclick="analyzeIncident()"
+                >
+
+                    <span>
+                        ◉
+                    </span>
+
+                    Analyze Incident
+
+                </button>
+
+                <p>
+                    OpsMind will inspect telemetry, logs,
+                    runbooks and Hindsight memory.
+                </p>
+
+            </section>
+
+
+            <!-- =========================
+                 AI DIAGNOSIS
+            ========================== -->
+
+            <section
+                id="diagnosisSection"
+                class="section hidden"
+            >
+
+                <div class="section-title">
+
+                    <div>
+                        <span class="section-number">
+                            03
+                        </span>
+
+                        AI Diagnosis
+                    </div>
+
+                    <span class="section-caption">
+                        AGENT REASONING
+                    </span>
+
+                </div>
+
+
+                <div class="diagnosis-card">
+
+                    <div class="diagnosis-header">
+
+                        <div>
+
+                            <div class="small-label">
+                                LIKELY ROOT CAUSE
+                            </div>
+
+                            <h3
+                                id="rootCause"
+                            >
+                                —
+                            </h3>
+
+                        </div>
+
+                        <div class="confidence">
+
+                            <span class="small-label">
+                                CONFIDENCE
+                            </span>
+
+                            <span
+                                id="confidenceValue"
+                                class="confidence-value"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="reasoning-box">
+
+                        <div class="small-label">
+                            WHY OPSMIND THINKS THIS
+                        </div>
+
+                        <p id="reasoningText">
+                            —
+                        </p>
+
+                    </div>
+
+
+                    <!-- EVIDENCE -->
+
+                    <div class="subsection">
+
+                        <div class="subsection-title">
+                            Evidence
+                        </div>
+
+                        <div
+                            id="evidenceList"
+                            class="evidence-list"
+                        >
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 HINDSIGHT MEMORY
+            ========================== -->
+
+            <section
+                id="memorySection"
+                class="section hidden"
+            >
+
+                <div class="section-title">
+
+                    <div>
+                        <span class="section-number">
+                            04
+                        </span>
+
+                        Hindsight Memory
+                    </div>
+
+                    <span class="section-caption">
+                        ORGANIZATIONAL MEMORY
+                    </span>
+
+                </div>
+
+
+                <div class="memory-banner">
+
+                    <div class="memory-icon">
+                        ◎
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            OpsMind found relevant historical incidents
+                        </strong>
+
+                        <p>
+                            Previous incident knowledge is being used
+                            to improve the current diagnosis.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="memoryContainer"
+                    class="memory-grid"
+                >
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 RUNBOOK
+            ========================== -->
+
+            <section
+                id="runbookSection"
+                class="section hidden"
+            >
+
+                <div class="section-title">
+
+                    <div>
+                        <span class="section-number">
+                            05
+                        </span>
+
+                        Recommended Runbook
+                    </div>
+
+                    <span class="section-caption">
+                        SAFE SIMULATION
+                    </span>
+
+                </div>
+
+
+                <div class="runbook-card">
+
+                    <div class="runbook-header">
+
+                        <div>
+
+                            <div class="small-label">
+                                RUNBOOK
+                            </div>
+
+                            <h3 id="runbookTitle">
+                                —
+                            </h3>
+
+                        </div>
+
+                        <div class="simulation-badge">
+                            SIMULATION ONLY
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="runbookSteps"
+                        class="runbook-steps"
+                    >
+                    </div>
+
+
+                    <div
+                        id="verificationContainer"
+                        class="verification"
+                    >
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 APPROVAL
+            ========================== -->
+
+            <section
+                id="approvalSection"
+                class="approval-section hidden"
+            >
+
+                <div class="approval-warning">
+
+                    <div class="warning-icon">
+                        !
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Human approval required
+                        </strong>
+
+                        <p>
+                            OpsMind will not change any real
+                            production system. The following
+                            remediation is simulation-only.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="resolveButton"
+                    class="resolve-button"
+                    onclick="resolveIncident()"
+                >
+
+                    ⚡ Approve & Simulate Resolution
+
+                </button>
+
+            </section>
+
+
+            <!-- =========================
+                 RESOLUTION RESULT
+            ========================== -->
+
+            <section
+                id="resolutionSection"
+                class="section hidden"
+            >
+
+                <div class="section-title">
+
+                    <div>
+                        <span class="section-number">
+                            06
+                        </span>
+
+                        Resolution Result
+                    </div>
+
+                    <span class="section-caption">
+                        INCIDENT LEARNING
+                    </span>
+
+                </div>
+
+
+                <div class="resolution-card">
+
+                    <div class="success-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Simulated remediation completed
+                        </h3>
+
+                        <p id="resolutionOutcome">
+                            —
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="learning-card">
+
+                    <div class="learning-icon">
+                        🧠
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Hindsight Memory Updated
+                        </strong>
+
+                        <p>
+                            OpsMind retained the incident outcome
+                            so future incidents can benefit from
+                            this experience.
+                        </p>
+
+                    </div>
+
+                    <span class="learned-badge">
+                        LEARNED
+                    </span>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 FOOTER
+            ========================== -->
+
+            <footer>
+
+                <div>
+                    OpsMind
+                </div>
+
+                <div>
+                    AI SRE • Hindsight Memory •
+                    Human-in-the-loop
+                </div>
+
+            </footer>
+
+        </main>
+
+    </div>
+
+
+    <script src="/static/app.js"></script>
+
+</body>
+</html>

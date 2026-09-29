@@ -567,11 +567,7 @@ By combining AI reasoning with persistent organizational memory, OpsMind provide
 
 ---
 
-## Hackathon
 
-**Project:** OpsMind — AI SRE Incident Response & Memory Agent
-
-**Hackathon:** Hack With Hyderabad 3.0 / Hindsight Hackathon
 
 **Focus Areas:**
 
@@ -587,6 +583,6 @@ By combining AI reasoning with persistent organizational memory, OpsMind provide
 
 ## Current Prototype Scope
 
-OpsMind is a hackathon prototype using simulated incident telemetry and simulated remediation actions.
+OpsMind is a prototype using simulated incident telemetry and simulated remediation actions.
 
 The prototype demonstrates the complete memory-driven incident-response workflow without making changes to real production infrastructure.
